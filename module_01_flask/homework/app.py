@@ -7,14 +7,17 @@ app = Flask(__name__)
 
 car_list = ["chevrolet", "renault", "ford", "lada"]
 cat_list = ["корниш-рекс", "русская голубая", "шотландская вислоухая", "мейн-кун", "манчкин"]
-base_dir = os.path.dirname(os.path.abspath(__file__))
-book_file = os.path.join(base_dir, 'war_and_peace.txt')
+words = []
 
-def get_words():
-    with open(book_file, 'r') as book:
-        text = book.read()
-        words = re.findall(r'\b\w+\b', text)
-        return words
+def generate_word_list():
+    with open('war_and_peace.txt', 'r', encoding='utf-8') as f:
+        text = f.read()
+        words.extend(text.split())
+
+generate_word_list()
+
+def get_random_word():
+    return random.choice(words)
 
 def get_current_time():
     current_time = datetime.datetime.now()
@@ -24,6 +27,7 @@ def get_time_after_one_hour():
     current_time = datetime.datetime.now()
     time_after_one_hour = current_time + datetime.timedelta(hours=1)
     return time_after_one_hour.strftime("%H:%M:%S")
+
 @app.route('/hello_world')
 def hello_world():
     return "привет, мир!"
@@ -48,10 +52,9 @@ def get_time_after_hour():
     return f"точное время через час будет {time_after_one_hour}"
 
 @app.route('/get_random_word')
-def get_random_word():
-    words = get_words()
-    random_word = random.choice(words)
-    return random_word
+def random_word():
+    word = get_random_word()
+    return f"Random word from 'War and Peace': {word}"
 
 # Counter variable
 counter_visits = 0
