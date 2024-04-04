@@ -14,25 +14,42 @@
 
 from flask import Flask
 
-app = Flask(__name__)
 
+app = Flask(__name__)
 storage = {}
 
+@app.route('/add/<date>/<int:number>', methods=['GET'])
+def add_expense(date, number):
+    year = date[:4]
+    month = date[4:6]
 
-@app.route("/add/<date>/<int:number>")
-def add(date: str, number: int):
-    ...
+    if year not in storage:
+        storage[year] = {}
+        storage[year][month] = 0
+    elif month not in storage[year]:
+        storage[year][month] = 0
 
+    storage[year][month] += number
 
-@app.route("/calculate/<int:year>")
-def calculate_year(year: int):
-    ...
+    return "Expense added successfully"
 
+@app.route('/calculate/<int:year>', methods=['GET'])
+def calculate_year(year):
+    if str(year) not in storage:
+        return "No expenses for the year"
 
-@app.route("/calculate/<int:year>/<int:month>")
-def calculate_month(year: int, month: int):
-    ...
+    total_expense = sum(storage[str(year)].values())
 
+    return f"Total expenses for {year}: {total_expense}"
+
+@app.route('/calculate/<int:year>/<int:month>', methods=['GET'])
+def calculate_month(year, month):
+    if str(year) not in storage or str(month) not in storage[str(year)]:
+        return "No expenses for the specific month"
+
+    total_expense_month = storage[str(year)][str(month)]
+
+    return f"Total expenses for {month}/{year}: {total_expense_month}"
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()

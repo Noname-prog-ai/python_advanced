@@ -27,14 +27,27 @@ hello world!
 """
 
 from flask import Flask
+import os
 
 app = Flask(__name__)
 
 
-@app.route("/head_file/<int:size>/<path:relative_path>")
-def head_file(size: int, relative_path: str):
-    ...
+@app.route('/head_file/<int:size>/<path:relative_path>')
+def head_file(size, relative_path):
+    try:
+        abs_path = os.path.abspath(relative_path)
+
+        with open(abs_path, 'r') as file:
+            content = file.read(size)
+            content_size = len(content)
+
+        return f"<b>{abs_path}</b> {content_size}<br>{content}"
+
+    except FileNotFoundError:
+        return "Файл не найден"
+    except IsADirectoryError:
+        return "Указанный путь ведет к директории"
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()

@@ -15,10 +15,24 @@ $ ps aux > output_file.txt
 
 
 def get_summary_rss(ps_output_file_path: str) -> str:
-    ...
+    bytes_total = 0
+    with open(ps_output_file_path, 'r') as file:
+        lines = file.readlines()[1:]
+        for line in lines:
+            columns = line.split()
+            rss = int(columns[5])
+            bytes_total += rss
+
+    units = ['Б', 'Кб', 'Мб', 'Гб', 'Тб']
+    unit_index = 0
+    while bytes_total >= 1024 and unit_index < len(units) - 1:
+        bytes_total /= 1024
+        unit_index += 1
+
+    return f'{int(bytes_total)} {units[unit_index]}'
 
 
-if __name__ == '__main__':
-    path: str = 'PATH_TO_OUTPUT_FILE'
+if __name__ == "__main":
+    path: str = 'output_file.txt'
     summary_rss: str = get_summary_rss(path)
     print(summary_rss)
