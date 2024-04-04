@@ -36,12 +36,24 @@ $ echo  ‘абраа..-.кадабра’ | python3 decrypt.py
 
 import sys
 
+def decrypt(cipher):
+    decrypted = []
+    skip_next = False
 
-def decrypt(encryption: str) -> str:
-    ...
+    for char in cipher:
+        if skip_next:
+            skip_next = False
+        else:
+            if char == '.':
+                skip_next = True
+            elif char == '-':
+                if decrypted:
+                    decrypted.pop()
+            else:
+                decrypted.append(char)
 
+    return ''.join(decrypted)
 
-if __name__ == '__main__':
-    data: str = sys.stdin.read()
-    decryption: str = decrypt(data)
-    print(decryption)
+if __name__ == "__main__":
+    cipher = sys.stdin.read().strip()
+    print(decrypt(cipher))

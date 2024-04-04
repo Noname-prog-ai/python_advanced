@@ -15,13 +15,24 @@ Endpoint должен вернуть текст «Максимальное пе�
 
 from flask import Flask
 
+
 app = Flask(__name__)
 
 
-@app.route("/max_number/...")
-def max_number():
-    ...
+@app.route('/max_number/<path:numbers>')
+def max_number(numbers):
+    number_list = numbers.split('/')
+
+    # Фильтруем введенные значения, оставляя только числа
+    number_list = [num for num in number_list if num.isdigit()]
+
+    if not number_list:
+        return "Нет переданных чисел"
+
+    max_number = max(int(num) for num in number_list)
+
+    return f"Максимальное число: {max_number}"
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
