@@ -14,6 +14,8 @@ GREETINGS = (
     'Хорошего воскресенья'
 )
 
+def get_weekday_from_username(username: str) -> str:
+    return username.split()[-1]
 
 @app.route('/hello-world/<name>')
 def hello_world(name: str) -> str:
