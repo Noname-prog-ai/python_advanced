@@ -1,3 +1,4 @@
+import unittest
 from flask import Flask
 
 app = Flask(__name__)
@@ -6,7 +7,7 @@ storage = {}
 # заполнение storage изначальными данными
 storage["2022"] = {"01": 100, "02": 150, "03": 200}
 
-# проверка работы endpoint /add/
+
 @app.route('/add/<date>/<int:number>', methods=['GET'])
 def add_expense(date, number):
     year = date[:4]
@@ -22,7 +23,7 @@ def add_expense(date, number):
 
     return "expense added successfully"
 
-# проверка работы обоих endpoints /calculate/
+
 @app.route('/calculate/<int:year>', methods=['GET'])
 def calculate_year(year):
     if str(year) not in storage:
@@ -31,6 +32,7 @@ def calculate_year(year):
     total_expense = sum(storage[str(year)].values())
 
     return f"total expenses for {year}: {total_expense}"
+
 
 @app.route('/calculate/<int:year>/<int:month>', methods=['GET'])
 def calculate_month(year, month):
@@ -41,9 +43,6 @@ def calculate_month(year, month):
 
     return f"total expenses for {month}/{year}: {total_expense_month}"
 
-# проверка работы endpoint /add/ с невалидным форматом даты
-# в данном случае можно добавить проверку на длину даты и числовой формат
-# если дата не соответствует формату yyyymmdd, сервер вернет ошибку 404
 
 if __name__ == "__main__":
     app.run()

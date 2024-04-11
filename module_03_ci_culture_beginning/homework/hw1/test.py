@@ -1,5 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import unittest
+from freezegun import freeze_time
 
 from module_03_ci_culture_beginning.homework.hw1.hello_word_with_day import app
 
@@ -13,20 +14,29 @@ greetings = (
     'хорошего воскресенья'
 )
 
-class TestMaxNumberApp(unittest.TestCase):
+class TestHelloWorldApp(unittest.TestCase):
     def setUp(self):
-        app.config["TESTING"] = True
-        app.config["DEBUG"] = False
+        app.config['TESTING'] = True
+        app.config['DEBUG'] = False
         self.app = app.test_client()
         self.base_url = "/hello-world/"
 
-    def _get_weekday(self):
-        current_day = datetime.today().weekday()
-        return greetings[current_day]
+    @staticmethod
+    def now_with_offset(offset: int, now: datetime = datetime.now()) -> datetime:
+        return now + timedelta(days=offset)
 
-    def test_can_get_correct_weekday(self):
-        username = "some"
-        weekday = self._get_weekday()
+    def test_can_get_correct_username_with_weekday(self):
+        username = 'username'
         response = self.app.get(self.base_url + username)
         response_text = response.data.decode()
-        self.assertTrue(weekday in response_text)
+        self.assertIn(username, response_text)
+
+    def test_can_get_correct_weekday(self):
+        username = "username"
+        for i in range(0, 7):
+            date = self.now_with_offset(i)
+            weekday = date.weekday()
+            with self.subTest(i=i), freeze_time(date):
+                response = self.app.get(self.base_url + username)
+                response_text = response.data.decode()
+                self.assertIn(greetings[weekday], response_text)
