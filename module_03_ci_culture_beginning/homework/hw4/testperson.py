@@ -1,4 +1,3 @@
-import datetime
 import unittest
 
 from module_03_ci_culture_beginning.homework.hw4.person import Person
