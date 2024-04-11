@@ -1,20 +1,13 @@
 import unittest
 
-def decrypt(cipher):
-    decrypted = []
-    skip_next = False
-
-    for char in cipher:
-        if skip_next:
-            skip_next = False
-        else:
-            if char == '.':
-                skip_next = True
-            elif char == '-':
-                if decrypted:
-                    decrypted.pop()
-            else:
-                decrypted.append(char)
+def decrypt(encryption: str) -> str:
+    result: list = []
+    dots: int = 0
+    for symbol in encryption:
+        if symbol != '.':
+            result.append(symbol)
+            dots = 0
+            continue
 
     return ''.join(decrypted)
 

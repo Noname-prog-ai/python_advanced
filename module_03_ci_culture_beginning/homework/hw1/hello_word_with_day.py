@@ -4,14 +4,14 @@ from flask import Flask
 
 app = Flask(__name__)
 
-GREETINGS = (
-    'Хорошего понедельника',
-    'Хорошего вторника',
-    'Хорошей среды',
-    'Хорошего четверга',
-    'Хорошей пятницы',
-    'Хорошей субботы',
-    'Хорошего воскресенья'
+greetings = (
+    'хорошего понедельника',
+    'хорошего вторника',
+    'хорошей среды',
+    'хорошего четверга',
+    'хорошей пятницы',
+    'хорошей субботы',
+    'хорошего воскресенья'
 )
 
 def get_weekday_from_username(username: str) -> str:
@@ -19,9 +19,9 @@ def get_weekday_from_username(username: str) -> str:
 
 @app.route('/hello-world/<name>')
 def hello_world(name: str) -> str:
-    weekday: int = datetime.today().weekday()
-    greeting: str = GREETINGS[weekday]
-    return f'Привет, {name}. {greeting}!'
+    weekday = datetime.today().weekday()
+    greeting = greetings[weekday]
+    return f'привет, {name}. {greeting}!'
 
 
 if __name__ == '__main__':
