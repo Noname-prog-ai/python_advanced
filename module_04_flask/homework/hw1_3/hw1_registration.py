@@ -18,11 +18,11 @@ app = Flask(__name__)
 
 
 class RegistrationForm(FlaskForm):
-    email = StringField()
-    phone = IntegerField()
-    name = StringField()
-    address = StringField()
-    index = IntegerField()
+    email = StringField(validators=[InputRequired(), Email()])
+    phone = IntegerField(validators=[InputRequired(), NumberRange(min=1000000000, max=9999999999, message="Недопустимый номер телефона")])
+    name = StringField(validators=[InputRequired()])
+    address = StringField(validators=[InputRequired()])
+    index = IntegerField(validators=[InputRequired()])
     comment = StringField()
 
 
