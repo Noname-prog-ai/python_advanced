@@ -7,13 +7,19 @@
 from typing import Optional
 
 from flask_wtf import FlaskForm
-from wtforms import Field
+from wtforms import StringField
+from wtforms.validators import ValidationError
 
 
 def number_length(min: int, max: int, message: Optional[str] = None):
-    ...
+    def _number_length(form, field):
+        if field.data is not None and not min <= len(field.data) <= max:
+            if message is None:
+                message = f'Field must be between {min} and {max} characters long.'
+            raise ValidationError(message)
+
+    return _number_length
 
 
-class NumberLength:
-    def __init__(self, min: int, max: int, message: Optional[str] = None):
-        ...
+class PhoneNumberForm(FlaskForm):
+    phone_number = StringField('Phone Number', validators=[number_length(10, 15, message='Invalid phone number length.')])
