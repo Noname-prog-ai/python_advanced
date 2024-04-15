@@ -11,44 +11,44 @@
 она должна найти процесс по этому порту, завершить его и попытаться запустить сервер ещё раз.
 """
 from typing import List
-
+import os
+import subprocess
 from flask import Flask
 
 app = Flask(__name__)
 
-
 def get_pids(port: int) -> List[int]:
     """
-    Возвращает список PID процессов, занимающих переданный порт
+    возвращает список pid процессов, занимающих переданный порт
     @param port: порт
-    @return: список PID процессов, занимающих порт
+    @return: список pid процессов, занимающих порт
     """
     if not isinstance(port, int):
         raise ValueError
 
     pids: List[int] = []
-    ...
+    output = subprocess.check_output(['lsof', '-ti', f':{port}'])
+    for line in output.decode().splitlines():
+        pids.append(int(line))
     return pids
-
 
 def free_port(port: int) -> None:
     """
-    Завершает процессы, занимающие переданный порт
+    завершает процессы, занимающие переданный порт
     @param port: порт
     """
     pids: List[int] = get_pids(port)
-    ...
-
+    for pid in pids:
+        os.system(f'kill {pid}')
 
 def run(port: int) -> None:
     """
-    Запускает flask-приложение по переданному порту.
-    Если порт занят каким-либо процессом, завершает его.
+    запускает flask-приложение по переданному порту.
+    если порт занят каким-либо процессом, завершает его.
     @param port: порт
     """
     free_port(port)
     app.run(port=port)
 
-
-if __name__ == '__main__':
+if __name__ == '__main':
     run(5000)
