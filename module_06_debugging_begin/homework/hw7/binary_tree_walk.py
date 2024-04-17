@@ -15,6 +15,7 @@ def restore_tree(path_to_log_file: str) -> BinaryTreeNode:
 
 Примечание: гарантируется, что все значения, хранящиеся в бинарном дереве уникальны
 """
+import json
 import itertools
 import logging
 import random
@@ -71,7 +72,25 @@ def get_tree(max_depth: int, level: int = 1) -> Optional[BinaryTreeNode]:
 
 
 def restore_tree(path_to_log_file: str) -> BinaryTreeNode:
-    pass
+    nodes = {}
+
+    with open(path_to_log_file, "r") as file:
+        for line in file:
+            log_data = json.loads(line.strip())
+            val = log_data["val"]
+            left = log_data.get("left")
+            right = log_data.get("right")
+            node = BinaryTreeNode(val=val)
+
+            if left is not None:
+                node.left = nodes[left]
+            if right is not None:
+                node.right = nodes[right]
+
+            nodes[val] = node
+
+    root = nodes[1]  # assuming the root node has val = 1
+    return root
 
 
 if __name__ == "__main__":
