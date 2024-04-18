@@ -30,6 +30,16 @@ T9_DICT = {
     '9': ['w', 'x', 'y', 'z']
 }
 
+with open("/usr/share/dict/words") as file:
+    WORDS_LIST = [word.strip() for word in file.readlines()]
+
+
+def my_t9(input_numbers: str) -> List[str]:
+    letters = [T9_DICT[int(num)] for num in input_numbers]
+    words = WORDS_LIST
+    for l in letters:
+        words = [word for word in words if all(char in l for char in word)]
+    return words
 
 def my_t9(input_numbers: str) -> List[str]:
     if not input_numbers:

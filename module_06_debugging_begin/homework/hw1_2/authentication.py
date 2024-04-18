@@ -18,20 +18,27 @@
 import getpass
 import hashlib
 import logging
+import re
 
 logger = logging.getLogger("password_checker")
-# Настройка логгера
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', filename='stderr.txt')
 
+# Загрузка списка слов английского языка
+english_words = set()
+with open('/usr/share/dict/words', 'r') as f:
+    for word in f:
+        if len(word.strip()) > 4:  # Исключаем слова короче 5 символов
+            english_words.add(word.strip().lower())
+
 def is_strong_password(password: str) -> bool:
-    # Проверка наличия английских слов в пароле
-    if any(char.isalpha() and char.isascii() for char in password):
+    # Проверка на наличие английских слов в пароле
+    if any(word.lower() in english_words for word in re.findall(r'\w{5,}', password)):
         return False
     return True
 
 def input_and_check_password() -> bool:
     logging.debug("начало input_and_check_password")
-    password: str = getpass.getpass()
+    password = getpass.getpass()
 
     if not password:
         logging.warning("вы ввели пустой пароль.")
@@ -51,8 +58,8 @@ def input_and_check_password() -> bool:
     return False
 
 if __name__ == "__main__":
-    count_number: int = 3
-    logging.info(f"вы пытаетесь аутентифицироваться в skillbox. У вас есть {count_number} попыток")
+    count_number = 3
+    logging.info(f"вы пытаетесь аутентифицироваться в skillbox. у вас есть {count_number} попыток")
 
     while count_number > 0:
         if input_and_check_password():

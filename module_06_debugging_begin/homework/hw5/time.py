@@ -5,7 +5,7 @@ with open('logger.txt', 'r') as file:
     log_data = file. readlines()
 odd_data = []
 even_data = []
-for key in range(30):
+for key in range(min(30, len(log_data))):
     if key % 2 != 0:
         odd_data.append(log_data[key].rstrip())
     else:
