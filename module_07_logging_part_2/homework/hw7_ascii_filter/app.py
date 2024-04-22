@@ -12,6 +12,8 @@ logger.addHandler(console_handler)
 
 
 def calc(args):
+    logger.debug("Кириллические символы")
+    logger.debug('ASCII symbols')
     logger.info(f"Arguments: {args}")
 
     num_1 = args[0]

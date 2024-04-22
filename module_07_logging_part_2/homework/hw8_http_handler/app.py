@@ -1,18 +1,13 @@
 import sys
 import logging
 from utils import string_to_operator
+from logger_helper import get_logger
 
-
-logger = logging.getLogger('app')
-logger.setLevel("INFO")
-formatter = logging.Formatter("%(levelname)s | %(name)s | %(asctime)s | %(lineno)s | %(message)s")
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(formatter)
-logger.addHandler(console_handler)
+logger = get_logger('app')
 
 
 def calc(args):
-    logger.info(f"Arguments: {args}")
+    logger.debug(f"Arguments: {args}")
 
     num_1 = args[0]
     operator = args[1]
