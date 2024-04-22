@@ -1,5 +1,7 @@
 import sys
 import logging
+
+import logging_tree
 from utils import string_to_operator
 
 
@@ -41,3 +43,6 @@ def calc(args):
 if __name__ == '__main__':
     # calc(sys.argv[1:])
     calc('2+3')
+    logging_tree.printout()
+    with open('logging_tree.txt', 'w') as file:
+        file.write(logging_tree.format.build_description())
