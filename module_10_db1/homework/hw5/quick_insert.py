@@ -2,10 +2,11 @@ from typing import Union, List
 
 Number = Union[int, float, complex]
 
-
 def find_insert_position(array: List[Number], number: Number) -> int:
-    ...
-
+    for idx, elem in enumerate(array):
+        if number <= elem:
+            return idx
+    return len(array)
 
 if __name__ == '__main__':
     A: List[Number] = [1, 2, 3, 3, 3, 5]
