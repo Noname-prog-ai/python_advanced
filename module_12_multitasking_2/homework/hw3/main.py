@@ -1,8 +1,9 @@
 from threading import Semaphore, Thread
 import time
+import signal
+import sys
 
-sem: Semaphore = Semaphore()
-
+sem = Semaphore()
 
 def fun1():
     while True:
@@ -11,7 +12,6 @@ def fun1():
         sem.release()
         time.sleep(0.25)
 
-
 def fun2():
     while True:
         sem.acquire()
@@ -19,12 +19,17 @@ def fun2():
         sem.release()
         time.sleep(0.25)
 
+def signal_handler(sig, frame):
+    print('\nreceived keyboard interrupt, quitting threads.')
+    sys.exit(0)
 
-t1: Thread = Thread(target=fun1)
-t2: Thread = Thread(target=fun2)
-try:
-    t1.start()
-    t2.start()
-except KeyboardInterrupt:
-    print('\nReceived keyboard interrupt, quitting threads.')
-    exit(1)
+signal.signal(signal.SIGINT, signal_handler)
+
+t1 = Thread(target=fun1)
+t2 = Thread(target=fun2)
+
+t1.start()
+t2.start()
+
+t1.join()
+t2.join()
