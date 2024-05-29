@@ -1,3 +1,4 @@
+import threading
 from threading import Semaphore, Thread
 import time
 import signal
@@ -25,8 +26,8 @@ def signal_handler(sig, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-t1 = Thread(target=fun1)
-t2 = Thread(target=fun2)
+t1 = threading.Thread(target=fun1, daemon=True)
+t2 = threading.Thread(target=fun2, daemon=True)
 
 t1.start()
 t2.start()

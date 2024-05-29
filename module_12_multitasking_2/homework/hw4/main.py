@@ -1,50 +1,41 @@
 import requests
 import threading
+import time
+import logging
 from queue import Queue
 from datetime import datetime
-import time
 
-# Функция для получения timestamp с сервера
-def get_timestamp():
-    response = requests.get('http://127.0.0.1:8080/timestamp/1549892280') # Можно использовать текущий timestamp
+queue = Queue()
+data = {}
+
+
+def get_date(timestamp: float) -> str:
+    response = requests.get(f'http://127.0.0.1:8080/timestamp/{timestamp}')
     return response.text
 
-# Функция для записи логов в файл
-def write_log(timestamp, message):
-    with open('logs.txt', 'a') as file:
-        file.write(f'{timestamp} {message}\n')
 
-# Функция для работы каждого потока
-def thread_function(thread_id, timestamp):
-    for _ in range(20):
-        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        write_log(timestamp, f'Thread {thread_id} | Time: {current_time}')
+class Worker(threading.Thread):
+
+    def run(self):
+        current_timestamp = datetime.now().timestamp()
+        data[current_timestamp] = None
+        queue.put(current_timestamp)
+        server_response = get_date(current_timestamp)
+        data[current_timestamp] = server_response
         time.sleep(1)
 
-# Очередь для хранения timestamp
-q = Queue()
 
-# Получаем timestamp с сервера
-timestamp = get_timestamp()
-q.put(timestamp)
+workers = []
+for _ in range(10):
+    worker = Worker()
+    worker.start()
+    workers.append(worker)
 
-# Создаем и запускаем 10 потоков
-threads = []
-for i in range(10):
-    t = threading.Thread(target=thread_function, args=(i+1, q.get()))
-    threads.append(t)
-    t.start()
+while not queue.empty():
+    timestamp = queue.get()
+    while data.get(timestamp) is None:
+        continue
+    logging.info(f'{timestamp} -- {data[timestamp]}')
 
-# Ждем завершения всех потоков
-for t in threads:
-    t.join()
-
-# Сортируем логи по timestamp
-with open('logs.txt', 'r') as file:
-    lines = file.readlines()
-    lines.sort(key=lambda x: float(x.split()[0]))
-
-# Перезаписываем файл с отсортированными логами
-with open('logs.txt', 'w') as file:
-    for line in lines:
-        file.write(line)
+for worker in workers:
+    worker.join()
