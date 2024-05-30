@@ -1,6 +1,7 @@
 import sqlite3
 from typing import Any, Optional, List
 
+
 DATA: List[dict] = [
     {'id': 0, 'title': 'A Byte of Python', 'author': 'Swaroop C. H.'},
     {'id': 1, 'title': 'Moby-Dick; or, The Whale', 'author': 'Herman Melville'},
@@ -61,3 +62,39 @@ def get_all_books() -> List[Book]:
             """
         )
         return [Book(*row) for row in cursor.fetchall()]
+
+
+def get_all_abouts():
+    with sqlite3.connect('table_books.db') as conn:
+        cursor: sqlite3.Cursor = conn.cursor()
+        abouts = cursor.execute("SELECT * FROM about").fetchall()
+        return abouts
+
+
+def add_new_book(data):
+    with sqlite3.coonect('table_books.db') as conn:
+        cursor: sqlite3.Cursor = conn.cursor()
+        cursor.execute("INSERT INTO 'table_books' (title, author) VALUES (?, ?)", data)
+
+
+def search(author):
+    with sqlite3.connect('table_books.db') as conn:
+        cursor: sqlite3.Cursor = conn.cursor()
+        result = cursor.execute(f"SELECT * FROM table_books tb WHERE author LIKE '%{author}%'")
+        return [Book(*row) for row in result.fetchall()]
+
+
+def about():
+    with sqlite3.connect('table_books.db') as conn:
+        cursor: sqlite3.Cursor = conn.cursor()
+        cursor.execute(
+            """
+                CREATE TABLE IF NOT EXISTS about
+                    (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        description TEXT,
+                        views INTEGER,
+                        fk_about_books INTEGER REFERENCES table_books(id)
+                    )
+            """
+        )
