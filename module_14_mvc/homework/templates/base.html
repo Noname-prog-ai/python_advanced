@@ -1,18 +1,25 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>
-        Books
-    </title>
-    <link rel="stylesheet" type="text/css" href="../static/style.css">
-    <link href='http://fonts.googleapis.com/css?family=Bitter' rel='stylesheet' type='text/css'>
-
-</head>
-<body>
-<h1>The greatest book library you have ever seen!</h1>
-<hr>
-
-{% block content %}{% endblock %}
-
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %} {% if book %}
+<table class="customTable">
+    <thead>
+    <tr>
+        <th>Описание</th>
+        <th>Количество просмотров</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>
+            {{ book[1] }}
+        </td>
+        <td>
+            {{ book[2] }}
+        </td>
+    </tr>
+    </tbody>
+</table>
+{% else %}
+<h2> К сожалению у меня пока нет описания к этой книге…</h2>
+{% endif %}
+<a href="/books">Возврат на главную страницу</a><br>
+{% endblock %}
