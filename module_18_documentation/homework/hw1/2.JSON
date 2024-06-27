@@ -1,0 +1,115 @@
+{
+  "definitions": {
+    "Author": {
+      "properties": {
+        "id": {
+          "readOnly": true,
+          "type": "integer"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "middle_name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "first_name",
+        "Last_name"
+      ],
+      "type": "object"
+    }
+  },
+  "info": {
+    "title": "BooksList",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/authors": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Authors data",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Author"
+              },
+              "type": "array"
+            }
+          }
+        },
+        "summary": "This is an endpoint for obtaining the authors list.",
+        "tags": [
+          "authors"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "in": "body",
+            "name": "new authors params",
+            "schema": {
+              "$ref": "#/definitions/Author"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Author has been created",
+            "schema": {
+              "$ref": "#/definitions/Author"
+            }
+          }
+        },
+        "summary": "This is an endpoint for author creation.",
+        "tags": [
+          "authors"
+        ]
+      }
+    },
+    "/api/authors/[author_id}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "author_id",
+            "in": "path",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Показать книги выбранного автора"
+          }
+        },
+        "summary": "Показать книги выбранного автора ",
+        "tags": [
+          "authors"
+        ]
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "author_id",
+            "in": "path",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Автор и егo книги удалены"
+          }
+        },
+        "summary": "Эндпойнт для удаления автора и его книг",
+        "tags": [
+          "authors"
+        ]
+      }
+    }
+  },
+  "swagger": "2.0"
+}
