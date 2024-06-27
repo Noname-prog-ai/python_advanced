@@ -8,6 +8,18 @@ jsonrpc = JSONRPC(app, '/api', enable_web_browsable_api=True)
 
 @jsonrpc.method('calc.add')
 def add(a: float, b: float) -> float:
+    return operator.add(a, b)
+
+@jsonrpc.method('calc.sub')
+def sub(a: float, b: float) -> float:
+    return operator.sub(a, b)
+
+@jsonrpc.method('calc.mul')
+def mul(a: float, b: float) -> float:
+    return operator.mul(a, b)
+
+@jsonrpc.method('calc.truediv')
+def truediv(a: float, b: float) -> float:
     """
     Пример запроса:
 
@@ -34,7 +46,10 @@ def add(a: float, b: float) -> float:
       "result": 13.1
     }
     """
-    return operator.add(a, b)
+    try:
+        return operator.add(a, b)
+    except ZeroDivisionError:
+        return 0.0
 
 
 if __name__ == '__main__':
