@@ -54,11 +54,9 @@ class AuthorsList(Resource):
 
 class Authors(Resource):
     def delete(self, author_id):
-        # удаление автора со всеми его книгами
-        return delete_author_by_id(author_id), 200
+        return delete_book_by_id(author_id), 200
 
     def get(self, author_id):
-        # показать список книг автора
         schema = BookSchema()
         return schema.dump(get_book_by_author(author_id), many=True), 200
 
@@ -69,8 +67,8 @@ class BooksEdit(Resource):
 
     def put(self, book_id):
         data = request.json
-        book = {'title': data['title'], 'author': data['author'], 'id': book_id}
-        return update_book_by_id(book), 200
+        book = {'title': data['title'], 'author': data['author']}
+        return update_book_by_id(book_id, book), 200
 
     def patch(self, book_id):
         data = request.json
@@ -78,14 +76,15 @@ class BooksEdit(Resource):
         for key, value in data.items():
             setattr(book_for_edit, key, value)
         update_book_by_id(book_for_edit)
+        return 200
 
     def delete(self, book_id):
         return delete_book_by_id(book_id), 200
 
-api.add_resource(BookList, '/api/books')
-api.add_resource(BooksEdit, '/api/books/<int:book_id>')
+api.add_resource(BookList, '/api/books', '/api/books/<int:book_id>')
 api.add_resource(AuthorsList, '/api/authors')
 api.add_resource(Authors, '/api/authors/<int:author_id>')
+api.add_resource(BooksEdit, '/api/books/<int:book_id>')
 
 if __name__ == '__main__':
     init_db(initial_records_books=data_books, initial_records_authors=data_authors)
