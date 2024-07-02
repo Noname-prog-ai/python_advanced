@@ -1,47 +1,53 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Boolean, DateTime
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship
-from sqlalchemy import ForeignKey, exc
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import create_engine, event, exc
+from sqlalchemy.ext.declarative import declarative_base
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///library.db'
 db = SQLAlchemy(app)
 
-# Таблица книг в библиотеке
-class Book(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    count = db.Column(db.Integer, default=1)
-    release_date = db.Column(db.Date, nullable=False)
-    author_id = db.Column(db.Integer, db.ForeignKey('author.id'))
+# отдельные таблицы для каждой модели
 
-# Таблица авторов
-class Author(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
-    surname = db.Column(db.String(50), nullable=False)
+Base = declarative_base()
+
+class Book(Base):
+    __tablename__ = 'books'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    count = Column(Integer, default=1)
+    release_date = Column(Date, nullable=False)
+    author_id = Column(Integer, ForeignKey('authors.id'))
+
+class Author(Base):
+    __tablename__ = 'authors'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50), nullable=False)
+    surname = Column(String(50), nullable=False)
     books = relationship("Book", backref="author")
 
-# Таблица читателей
-class Student(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
-    surname = db.Column(db.String(50), nullable=False)
-    phone = db.Column(db.String(20), nullable=False)
-    email = db.Column(db.String(100), nullable=False)
-    average_score = db.Column(db.Float, nullable=False)
-    scholarship = db.Column(db.Boolean, nullable=False)
+class Student(Base):
+    __tablename__ = 'students'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50), nullable=False)
+    surname = Column(String(50), nullable=False)
+    phone = Column(String(20), nullable=False)
+    email = Column(String(100), nullable=False)
+    average_score = Column(Float, nullable=False)
+    scholarship = Column(Boolean, nullable=False)
     receiving_books = relationship("ReceivingBook", backref="student")
 
-# Таблица выдачи книг студентам
-class ReceivingBook(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    book_id = db.Column(db.Integer, db.ForeignKey('book.id'))
-    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
-    date_of_issue = db.Column(db.DateTime, nullable=False)
-    date_of_return = db.Column(db.DateTime)
-    count_date_with_book = db.Column(db.Integer)
+class ReceivingBook(Base):
+    __tablename__ = 'receiving_books'
+    id = Column(Integer, primary_key=True)
+    book_id = Column(Integer, ForeignKey('books.id'))
+    student_id = Column(Integer, ForeignKey('students.id'))
+    date_of_issue = Column(DateTime, nullable=False)
+    date_of_return = Column(DateTime)
 
     @hybrid_property
     def count_date_with_book(self):
@@ -50,40 +56,42 @@ class ReceivingBook(db.Model):
         else:
             return (datetime.now() - self.date_of_issue).days
 
-db.create_all()
+Base.metadata.create_all(db.engine)
 
-# роуты
-@app.route('/books_by_author/<int:author_id>', methods=['get'])
+# отдельные роуты для каждого метода
+
+
+@app.route('/books_by_author/<int:author_id>', methods=['GET'])
 def get_books_by_author(author_id):
     books = Book.query.filter_by(author_id=author_id).all()
     return jsonify([book.name for book in books])
 
-@app.route('/unseen_books/<int:student_id>', methods=['get'])
+@app.route('/unseen_books/<int:student_id>', methods=['GET'])
 def get_unseen_books(student_id):
     books = Book.query.filter(Book.author_id.in_(db.session.query(Book.author_id).join(ReceivingBook, ReceivingBook.book_id == Book.id).filter(ReceivingBook.student_id == student_id))).all()
     return jsonify([book.name for book in books])
 
-@app.route('/average_books_per_student_in_month', methods=['get'])
+@app.route('/average_books_per_student_in_month', methods=['GET'])
 def get_average_books_per_student_in_month():
-    # Реализация этого метода зависит от того, как у вас организованы данные по выдаче книг студентам
+    # реализация этого метода зависит от того, как у вас организованы данные по выдаче книг студентам
     pass
 
-@app.route('/most_popular_book_above_score_4', methods=['get'])
+@app.route('/most_popular_book_above_score_4', methods=['GET'])
 def get_most_popular_book_above_score_4():
     students = Student.query.filter(Student.average_score > 4.0).all()
-    # Реализация этого метода зависит от того, как у вас организованы данные по читаемым книгам студентов
+    # реализация этого метода зависит от того, как у вас организованы данные по читаемым книгам студентов
     pass
 
-@app.route('/top_10_readers_in_year', methods=['get'])
+@app.route('/top_10_readers_in_year', methods=['GET'])
 def get_top_10_readers_in_year():
-    # Реализация этого метода зависит от того, как у вас организованы данные по выдаче книг студентам
+    # реализация этого метода зависит от того, как у вас организованы данные по выдаче книг студентам
     pass
 
-# Обработка CSV-файла
+# обработка csv-файла
 
 from csv import DictReader
 
-@app.route('/add_students', methods=['post'])
+@app.route('/add_students', methods=['POST'])
 def add_students():
     file = request.files['file']
     if file:
