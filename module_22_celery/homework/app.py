@@ -5,8 +5,14 @@
 from flask import Flask, request
 from image import blur_image
 from mail import send_email
+import sqlite3
 
 app = Flask(__name__)
+
+# Создаем базу данных для хранения подписчиков
+conn = sqlite3.connect('subscribers.db')
+c = conn.cursor()
+c.execute('''CREATE TABLE IF NOT EXISTS subscribers (email text primary key)''')
 
 @app.route('/blur', methods=['POST'])
 def blur_images():
@@ -33,13 +39,15 @@ def task_status(task_id):
 @app.route('/subscribe', methods=['POST'])
 def subscribe():
     email = request.form.get('email')
-    # Здесь будет логика подписки, пока просто возвращаем успешное сообщение
+    c.execute("INSERT INTO subscribers (email) VALUES (?)", (email,))
+    conn.commit()
     return {'message': 'subscribed successfully'}
 
 @app.route('/unsubscribe', methods=['POST'])
 def unsubscribe():
     email = request.form.get('email')
-    # Здесь будет логика отписки, пока просто возвращаем успешное сообщение
+    c.execute("DELETE FROM subscribers WHERE email = ?", (email,))
+    conn.commit()
     return {'message': 'unsubscribed successfully'}
 
 if __name__ == '__main__':

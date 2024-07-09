@@ -9,7 +9,7 @@
 
 # https://yandex.ru/support/mail/mail-clients/others.html
 
-smtp_user = "почта отправителя"
+smtp_user = "your_email_address"
 smtp_host = "smtp.yandex.com"
-smtp_password = "пароль от почты отправителя / специальный токен приложения"
+smtp_password = "your_email_password_or_app_specific_password"
 smtp_port = 587
