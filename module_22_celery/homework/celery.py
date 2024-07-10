@@ -11,5 +11,6 @@ celery = Celery(__name__, broker='redis://localhost:6379/0', backend='redis://lo
 
 @celery.task
 def process_image(email, filename):
+    """Функция для обработки изображения и отправки почты"""
     blurred_filename = blur_image(filename)
     send_email(email, blurred_filename)
