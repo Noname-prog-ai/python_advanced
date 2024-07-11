@@ -5,6 +5,7 @@
 from flask import Flask, request
 from image import blur_image
 from mail import send_email
+from celery import Celery
 import sqlite3
 
 app = Flask(__name__)
@@ -14,41 +15,30 @@ conn = sqlite3.connect('subscribers.db')
 c = conn.cursor()
 c.execute('''CREATE TABLE IF NOT EXISTS subscribers (email text primary key)''')
 
-@app.route('/blur', methods=['POST'])
-def blur_images():
-    images = request.files.getlist('images')
-    email = request.form.get('email')
+# Инициализируем Celery для выполнения задач
+celery = Celery(__name__, broker='redis://localhost:6379/0', backend='redis://localhost:6379/0')
 
-    task_ids = []
-
-    for image in images:
-        task = process_image.delay(email, image.filename)
-        task_ids.append(task.id)
-
-    return {'task_ids': task_ids}
-
-@app.route('/status/<task_id>', methods=['GET'])
-def task_status(task_id):
-    task = process_image.AsyncResult(task_id)
-
-    if task.successful():
-        return {'status': 'completed'}
-    else:
-        return {'status': 'processing'}
+@celery.task
+def process_image(email, filename):
+    """Функция для обработки изображения и отправки почты"""
+    blurred_filename = blur_image(filename)
+    send_email(email, blurred_filename)
 
 @app.route('/subscribe', methods=['POST'])
 def subscribe():
+    """Маршрут для подписки на рассылку"""
     email = request.form.get('email')
     c.execute("INSERT INTO subscribers (email) VALUES (?)", (email,))
     conn.commit()
     return {'message': 'subscribed successfully'}
 
-@app.route('/unsubscribe', methods=['POST'])
-def unsubscribe():
-    email = request.form.get('email')
-    c.execute("DELETE FROM subscribers WHERE email = ?", (email,))
-    conn.commit()
-    return {'message': 'unsubscribed successfully'}
+# Добавляем периодическую задачу для рассылки новостей
+@celery.task(name='send_newsletter')
+def send_newsletter():
+    """Функция для отправки писем подписчикам с рассылкой"""
+    subscribers = c.execute("SELECT email FROM subscribers").fetchall()
+    for subscriber in subscribers:
+        process_image.delay(subscriber[0], 'newsletter_image.jpg')
 
 if __name__ == '__main__':
     app.run(debug=True)
