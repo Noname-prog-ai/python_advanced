@@ -25,7 +25,7 @@ def process_image(image_id):
 
 @app.route('/process_images', methods=['POST'])
 def process_images():
-    images = request.json.get('images')
+    images = request.json.get('Static')
 
     if images and isinstance(images, list):
         # Создаем группу задач
@@ -41,7 +41,7 @@ def process_images():
         # Возвращаем пользователю ID группы для отслеживания
         return jsonify({'group_id': result.id}), 202
     else:
-        return jsonify({'error': 'Missing or invalid images parameter'}), 400
+        return jsonify({'error': 'Missing or invalid Static parameter'}), 400
 
 
 @app.route('/status/<group_id>', methods=['GET'])
