@@ -1,10 +1,9 @@
-import os
-import requests
-from flask import Flask, jsonify
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+import requests
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{os.getenv("DB_USER")}:{os.getenv("DB_PASSWORD")}@localhost/skillbox_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://<username>:<password>@db:5432/skillbox_db'
 db = SQLAlchemy(app)
 
 class Coffee(db.Model):
@@ -19,25 +18,49 @@ class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
-    has_sale = db.Column(db.Boolean)
     address = db.Column(db.JSON)
     coffee_id = db.Column(db.Integer, db.ForeignKey('coffee.id'))
 
 @app.before_first_request
-def create_users_and_coffee():
+def create_records():
     for _ in range(10):
-        coffee_data = requests.get("https://random-data-api.com/api/coffee/random_coffee").json()
-        coffee = Coffee(title=coffee_data['blend_name'], origin=coffee_data['origin'],
-                        notes=coffee_data['notes'], intensifier=coffee_data['intensifier'])
-        db.session.add(coffee)
+        response_coffee = requests.get('https://random-data-api.com/api/coffee/random_coffee').json()
+        response_address = requests.get('https://random-data-api.com/api/address/random_address').json()
 
-        user_data = requests.get("https://random-data-api.com/api/address/random_address").json()
-        user = User(name=user_data['name'], address=user_data, coffee_id=coffee.id)
+        coffee = Coffee(
+            title=response_coffee['blend_name'],
+            origin=response_coffee['origin'],
+            notes=response_coffee['notes'],
+            intensifier=response_coffee['intensifier']
+        )
+
+        user = User(
+            name='Random User',
+            address=response_address,
+            coffee=coffee
+        )
+
+        db.session.add(coffee)
         db.session.add(user)
+
     db.session.commit()
 
-# Define routes for adding a user, searching coffee, etc.
+@app.route('/add_user', methods=['POST'])
+def add_user():
+    # Логика добавления пользователя
+    pass
 
-if __name__ == '__main__':
-    db.create_all()
-    app.run(debug=True)
+@app.route('/search_coffee/<title>', methods=['GET'])
+def search_coffee(title):
+    # Логика поиска кофе по названию
+    pass
+
+@app.route('/unique_notes', methods=['GET'])
+def unique_notes():
+    # Логика получения уникальных заметок
+    pass
+
+@app.route('/users_by_country/<country>', methods=['GET'])
+def users_by_country(country):
+    # Логика получения пользователей по стране
+    pass
