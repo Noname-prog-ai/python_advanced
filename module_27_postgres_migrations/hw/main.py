@@ -40,7 +40,7 @@ def create_test_data():
         new_user = User(
             name="Random User",
             address=user_response,
-            coffee_id=random.randint(1, 10)  # Important: Ensure this id exists in Coffee table
+            coffee_id=random.randint(1, 10)
         )
         db.session.add(new_user)
 
