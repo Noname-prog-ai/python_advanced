@@ -17,9 +17,9 @@ def cors(func):
 @cors
 def data():
     if request.method == 'POST':
-        return jsonify({'message': 'Data received!'}), 200
+        return jsonify({'сообщение": "Данные получены!'}), 200
     else:
-        return jsonify({'message': 'This is a GET request!'}), 200
+        return jsonify({"сообщение": "Это запрос на получение!"}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
