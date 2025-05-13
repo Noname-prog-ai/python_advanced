@@ -15,19 +15,19 @@ logger = logging.getLogger(__name__)
 
 def get_data_line(sz: int) -> List[int]:
     try:
-        logger.debug("Enter get_data_line")
+        logger.info("Enter get_data_line")
         return [random.randint(-(2 ** 31), 2 ** 31 - 1) for _ in range(sz)]
     finally:
-        logger.debug("Leave get_data_line")
+        logger.info("Leave get_data_line")
 
 
 def measure_me(nums: List[int]) -> List[List[int]]:
-    logger.debug("Enter measure_me")
+    logger.info("Enter measure_me")
     results = []
     nums.sort()
 
     for i in range(len(nums) - 2):
-        logger.debug(f"Iteration {i}")
+        logger.info(f"Iteration {i}")
         left = i + 1
         right = len(nums) - 1
         target = 0 - nums[i]
@@ -35,9 +35,9 @@ def measure_me(nums: List[int]) -> List[List[int]]:
             while left < right:
                 s = nums[left] + nums[right]
                 if s == target:
-                    logger.debug(f"Found {target}")
+                    logger.info(f"Found {target}")
                     results.append([nums[i], nums[left], nums[right]])
-                    logger.debug(
+                    logger.info(
                         f"Appended {[nums[i], nums[left], nums[right]]} to result"
                     )
                     while left < right and nums[left] == nums[left + 1]:
@@ -47,20 +47,26 @@ def measure_me(nums: List[int]) -> List[List[int]]:
                     left += 1
                     right -= 1
                 elif s < target:
-                    logger.debug(f"Increment left (left, right) = {left, right}")
+                    logger.info(f"Increment left (left, right) = {left, right}")
                     left += 1
                 else:
-                    logger.debug(f"Decrement right (left, right) = {left, right}")
+                    logger.info(f"Decrement right (left, right) = {left, right}")
 
                     right -= 1
 
-    logger.debug("Leave measure_me")
+    logger.info("Leave measure_me")
 
     return results
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level="DEBUG")
+    logging.basicConfig(
+        level="INFO",
+        filename='logger.txt',
+        filemode='w',
+        format="%(asctime)s.%(msecs)03d - %(message)s",
+        datefmt='%M:%S',
+    )
     for it in range(15):
         data_line = get_data_line(10 ** 3)
         measure_me(data_line)
