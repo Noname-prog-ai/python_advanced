@@ -45,4 +45,4 @@ class ReceivingBook(db.Model):
         if self.date_of_return is not None:
             return (self.date_of_return - self.date_of_issue).days
         else:
-            return (datetime.now() - self.date_of_issue).days
+            return (datetime.now() - self.date_of_issue).days 
