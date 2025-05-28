@@ -60,4 +60,4 @@ def calculate_month(year, month):
 # Если дата не соответствует формату yyyymmdd, сервер вернет ошибку 404
 
 if __name__ == "__main__":
-    app.run()
+    app.run() 
