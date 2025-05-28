@@ -7,4 +7,4 @@ app_logger = logging.getLogger('appLogger')
 
 app_logger.debug("app message level DEBUG")
 app_logger.info("app message level INFO")
-app_logger.warning("app message level WARNING")
+app_logger.warning("app message level WARNING") 
